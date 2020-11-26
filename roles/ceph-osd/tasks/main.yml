@@ -87,11 +87,14 @@
     - (wait_for_all_osds_up.stdout | from_json)["num_osds"] == (wait_for_all_osds_up.stdout | from_json)["num_up_osds"]
   when:
     - not ansible_check_mode
+    - not add_osd | bool
     - inventory_hostname == ansible_play_hosts_all | last
 
 - name: include crush_rules.yml
   include_tasks: crush_rules.yml
-  when: hostvars[groups[mon_group_name][0]]['crush_rule_config'] | default(crush_rule_config) | bool
+  when:
+    - not add_osd | bool
+    - hostvars[groups[mon_group_name][0]]['crush_rule_config'] | default(crush_rule_config) | bool
 
 # Create the pools listed in openstack_pools
 - name: include openstack_config.yml
